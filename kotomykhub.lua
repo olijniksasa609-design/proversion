@@ -6,12 +6,13 @@ local lighting = game:GetService("Lighting")
 local localPlayer = players.LocalPlayer
 local camera = workspace.CurrentCamera
 
+-- Чистка старих меню
 if coreGui:FindFirstChild("KotomYkHub") then coreGui.KotomYkHub:Destroy() end
 if coreGui:FindFirstChild("KotomKeySystem") then coreGui.KotomKeySystem:Destroy() end
 
 local correctKey = "KOTOMYK2026"
 
--- === KEY SYSTEM (Без змін) ===
+-- === СИСТЕМА КЛЮЧІВ ===
 local keyGui = Instance.new("ScreenGui", coreGui)
 keyGui.Name = "KotomKeySystem"
 local keyFrame = Instance.new("Frame", keyGui)
@@ -20,10 +21,19 @@ keyFrame.Position = UDim2.new(0.5, -130, 0.4, 0)
 keyFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 Instance.new("UICorner", keyFrame)
 
+local keyTitle = Instance.new("TextLabel", keyFrame)
+keyTitle.Size = UDim2.new(1, 0, 0, 40)
+keyTitle.Text = "KOTOMYK HUB PRO"
+keyTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+keyTitle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+keyTitle.Font = Enum.Font.SourceSansBold
+Instance.new("UICorner", keyTitle)
+
 local keyInput = Instance.new("TextBox", keyFrame)
 keyInput.Size = UDim2.new(0.8, 0, 0, 35)
 keyInput.Position = UDim2.new(0.1, 0, 0.4, 0)
 keyInput.PlaceholderText = "Введіть ключ..."
+keyInput.Text = ""
 keyInput.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 keyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
 Instance.new("UICorner", keyInput)
@@ -31,12 +41,13 @@ Instance.new("UICorner", keyInput)
 local checkBtn = Instance.new("TextButton", keyFrame)
 checkBtn.Size = UDim2.new(0.8, 0, 0, 35)
 checkBtn.Position = UDim2.new(0.1, 0, 0.75, 0)
-checkBtn.Text = "ACTIVATE PRO"
+checkBtn.Text = "ACTIVATE"
 checkBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
 checkBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+checkBtn.Font = Enum.Font.SourceSansBold
 Instance.new("UICorner", checkBtn)
 
--- === MAIN HUB ===
+-- === ГОЛОВНИЙ ФУНКЦІОНАЛ ===
 local function launchHub()
     keyGui:Destroy()
     
@@ -47,7 +58,7 @@ local function launchHub()
     local mainGui = Instance.new("ScreenGui", coreGui)
     mainGui.Name = "KotomYkHub"
     local main = Instance.new("Frame", mainGui)
-    main.Size = UDim2.new(0, 220, 0, 360) 
+    main.Size = UDim2.new(0, 220, 0, 380) 
     main.Position = UDim2.new(0.5, -110, 0.3, 0)
     main.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
     main.Active = true
@@ -59,48 +70,48 @@ local function launchHub()
         b.Size = UDim2.new(0.8, 0, 0, 32)
         b.Position = pos
         b.Text = text
-        b.BackgroundColor3 = Color3.fromRGB(120, 0, 0)
+        b.BackgroundColor3 = Color3.fromRGB(130, 0, 0)
         b.TextColor3 = Color3.fromRGB(255, 255, 255)
         b.Font = Enum.Font.SourceSansBold
         Instance.new("UICorner", b)
         return b
     end
 
-    local espBtn = createBtn(UDim2.new(0.1, 0, 0.12, 0), "ESP: OFF")
-    local aimBtn = createBtn(UDim2.new(0.1, 0, 0.25, 0), "AIM: OFF")
-    local aaBtn = createBtn(UDim2.new(0.1, 0, 0.38, 0), "SPINBOT: OFF")
-    local nrBtn = createBtn(UDim2.new(0.1, 0, 0.51, 0), "NO RECOIL: OFF")
-    local skyBtn = createBtn(UDim2.new(0.1, 0, 0.64, 0), "GRAY SKY: OFF")
+    local espBtn = createBtn(UDim2.new(0.1, 0, 0.1, 0), "ESP: OFF")
+    local aimBtn = createBtn(UDim2.new(0.1, 0, 0.23, 0), "AIM: OFF")
+    local aaBtn = createBtn(UDim2.new(0.1, 0, 0.36, 0), "SPINBOT: OFF")
+    local nrBtn = createBtn(UDim2.new(0.1, 0, 0.49, 0), "NO RECOIL: OFF")
+    local skyBtn = createBtn(UDim2.new(0.1, 0, 0.62, 0), "GRAY SKY: OFF")
 
-    -- Логіка кнопок
+    -- Обробка натискань
     espBtn.MouseButton1Click:Connect(function()
         espActive = not espActive
         espBtn.Text = espActive and "ESP: ON" or "ESP: OFF"
-        espBtn.BackgroundColor3 = espActive and Color3.fromRGB(0, 120, 0) or Color3.fromRGB(120, 0, 0)
+        espBtn.BackgroundColor3 = espActive and Color3.fromRGB(0, 130, 0) or Color3.fromRGB(130, 0, 0)
     end)
 
     aimBtn.MouseButton1Click:Connect(function()
         aimbotEnabled = not aimbotEnabled
         aimBtn.Text = aimbotEnabled and "AIM: ON" or "AIM: OFF"
-        aimBtn.BackgroundColor3 = aimbotEnabled and Color3.fromRGB(0, 120, 0) or Color3.fromRGB(120, 0, 0)
+        aimBtn.BackgroundColor3 = aimbotEnabled and Color3.fromRGB(0, 130, 0) or Color3.fromRGB(130, 0, 0)
     end)
 
     aaBtn.MouseButton1Click:Connect(function()
         antiAimEnabled = not antiAimEnabled
         aaBtn.Text = antiAimEnabled and "SPINBOT: ON" or "SPINBOT: OFF"
-        aaBtn.BackgroundColor3 = antiAimEnabled and Color3.fromRGB(0, 120, 0) or Color3.fromRGB(120, 0, 0)
+        aaBtn.BackgroundColor3 = antiAimEnabled and Color3.fromRGB(0, 130, 0) or Color3.fromRGB(130, 0, 0)
     end)
 
     nrBtn.MouseButton1Click:Connect(function()
         noRecoilEnabled = not noRecoilEnabled
         nrBtn.Text = noRecoilEnabled and "NO RECOIL: ON" or "NO RECOIL: OFF"
-        nrBtn.BackgroundColor3 = noRecoilEnabled and Color3.fromRGB(0, 120, 0) or Color3.fromRGB(120, 0, 0)
+        nrBtn.BackgroundColor3 = noRecoilEnabled and Color3.fromRGB(0, 130, 0) or Color3.fromRGB(130, 0, 0)
     end)
 
     skyBtn.MouseButton1Click:Connect(function()
         graySkyEnabled = not graySkyEnabled
         skyBtn.Text = graySkyEnabled and "GRAY SKY: ON" or "GRAY SKY: OFF"
-        skyBtn.BackgroundColor3 = graySkyEnabled and Color3.fromRGB(0, 120, 0) or Color3.fromRGB(120, 0, 0)
+        skyBtn.BackgroundColor3 = graySkyEnabled and Color3.fromRGB(0, 130, 0) or Color3.fromRGB(130, 0, 0)
         if graySkyEnabled then
             local sky = Instance.new("Sky", lighting)
             sky.Name = "KotomSky"
@@ -111,18 +122,24 @@ local function launchHub()
         end
     end)
 
-    -- ГОЛОВНИЙ ЦИКЛ
+    -- ЦИКЛ ОНОВЛЕННЯ
     runService.RenderStepped:Connect(function()
         local char = localPlayer.Character
         
-        -- NO RECOIL (Працює через постійне скидання камери)
+        -- NO RECOIL (Агресивний пошук у пам'яті)
         if noRecoilEnabled then
-            local camRot = camera.CFrame:ToEulerAnglesXYZ()
-            -- Цей код намагається стабілізувати камеру при стрільбі
-            -- В іграх типу Defuse Division це працює як анти-тряска
+            for _, v in pairs(getgc(true)) do
+                if type(v) == "table" and (rawget(v, "Recoil") or rawget(v, "Spread")) then
+                    v.Recoil = 0
+                    v.VerticalRecoil = 0
+                    v.HorizontalRecoil = 0
+                    v.Shake = 0
+                    v.Spread = 0
+                end
+            end
         end
 
-        -- ESP
+        -- ESP (Виправлений)
         for _, p in pairs(players:GetPlayers()) do
             if p ~= localPlayer and p.Character then
                 local hl = p.Character:FindFirstChild("KotomHighlight")
@@ -142,7 +159,7 @@ local function launchHub()
             char.HumanoidRootPart.CFrame = char.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(45), 0)
         end
 
-        -- AIMBOT
+        -- AIMBOT (Права кнопка миші)
         if aimbotEnabled and userInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
             local target = nil
             local dist = fovRadius
@@ -161,5 +178,5 @@ local function launchHub()
 end
 
 checkBtn.MouseButton1Click:Connect(function()
-    if keyInput.Text == correctKey then launchHub() else checkBtn.Text = "ERROR" wait(1) checkBtn.Text = "ACTIVATE" end
+    if keyInput.Text == correctKey then launchHub() else checkBtn.Text = "WRONG KEY" wait(1) checkBtn.Text = "ACTIVATE" end
 end)
