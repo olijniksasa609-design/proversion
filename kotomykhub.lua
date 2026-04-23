@@ -2,6 +2,7 @@ local coreGui = game:GetService("CoreGui")
 local players = game:GetService("Players")
 local runService = game:GetService("RunService")
 local userInputService = game:GetService("UserInputService")
+local lighting = game:GetService("Lighting")
 local localPlayer = players.LocalPlayer
 local camera = workspace.CurrentCamera
 
@@ -19,13 +20,6 @@ keyFrame.Position = UDim2.new(0.5, -130, 0.4, 0)
 keyFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 Instance.new("UICorner", keyFrame)
 
-local keyTitle = Instance.new("TextLabel", keyFrame)
-keyTitle.Size = UDim2.new(1, 0, 0, 40)
-keyTitle.Text = "KOTOMYK HUB PRO"
-keyTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-keyTitle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Instance.new("UICorner", keyTitle)
-
 local keyInput = Instance.new("TextBox", keyFrame)
 keyInput.Size = UDim2.new(0.8, 0, 0, 35)
 keyInput.Position = UDim2.new(0.1, 0, 0.4, 0)
@@ -42,40 +36,41 @@ checkBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
 checkBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 Instance.new("UICorner", checkBtn)
 
--- === MAIN HUB FUNCTION ===
+-- === MAIN HUB ===
 local function launchHub()
     keyGui:Destroy()
     
-    local espActive = false
-    local aimbotEnabled = false
-    local antiAimEnabled = false
+    local espActive, aimbotEnabled, antiAimEnabled = false, false, false
+    local graySkyEnabled, thirdPersonEnabled = false, false
     local fovRadius = 120
 
     local mainGui = Instance.new("ScreenGui", coreGui)
     mainGui.Name = "KotomYkHub"
     local main = Instance.new("Frame", mainGui)
-    main.Size = UDim2.new(0, 220, 0, 280) -- Збільшив для нової кнопки
-    main.Position = UDim2.new(0.5, -110, 0.4, 0)
+    main.Size = UDim2.new(0, 220, 0, 360) -- Збільшив для нових кнопок
+    main.Position = UDim2.new(0.5, -110, 0.3, 0)
     main.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
     main.Active = true
     main.Draggable = true
     Instance.new("UICorner", main)
 
-    local function createBtn(pos, text, color)
+    local function createBtn(pos, text)
         local b = Instance.new("TextButton", main)
-        b.Size = UDim2.new(0.8, 0, 0, 35)
+        b.Size = UDim2.new(0.8, 0, 0, 30)
         b.Position = pos
         b.Text = text
-        b.BackgroundColor3 = color or Color3.fromRGB(120, 0, 0)
+        b.BackgroundColor3 = Color3.fromRGB(120, 0, 0)
         b.TextColor3 = Color3.fromRGB(255, 255, 255)
         b.Font = Enum.Font.SourceSansBold
         Instance.new("UICorner", b)
         return b
     end
 
-    local espBtn = createBtn(UDim2.new(0.1, 0, 0.2, 0), "ESP: OFF")
-    local aimBtn = createBtn(UDim2.new(0.1, 0, 0.4, 0), "AIM: OFF")
-    local aaBtn = createBtn(UDim2.new(0.1, 0, 0.6, 0), "SPINBOT: OFF")
+    local espBtn = createBtn(UDim2.new(0.1, 0, 0.12, 0), "ESP: OFF")
+    local aimBtn = createBtn(UDim2.new(0.1, 0, 0.25, 0), "AIM: OFF")
+    local aaBtn = createBtn(UDim2.new(0.1, 0, 0.38, 0), "SPINBOT: OFF")
+    local skyBtn = createBtn(UDim2.new(0.1, 0, 0.51, 0), "GRAY SKY: OFF")
+    local tpBtn = createBtn(UDim2.new(0.1, 0, 0.64, 0), "3RD PERSON: OFF")
 
     -- Логіка кнопок
     espBtn.MouseButton1Click:Connect(function()
@@ -96,29 +91,56 @@ local function launchHub()
         aaBtn.BackgroundColor3 = antiAimEnabled and Color3.fromRGB(0, 120, 0) or Color3.fromRGB(120, 0, 0)
     end)
 
-    -- ЦИКЛ ОБРОБКИ (ESP, AIM, SPINBOT)
+    skyBtn.MouseButton1Click:Connect(function()
+        graySkyEnabled = not graySkyEnabled
+        skyBtn.Text = graySkyEnabled and "GRAY SKY: ON" or "GRAY SKY: OFF"
+        skyBtn.BackgroundColor3 = graySkyEnabled and Color3.fromRGB(0, 120, 0) or Color3.fromRGB(120, 0, 0)
+        
+        if graySkyEnabled then
+            local sky = Instance.new("Sky", lighting)
+            sky.Name = "KotomSky"
+            sky.SkyboxBk, sky.SkyboxDn, sky.SkyboxFt = "rbxassetid://159454299", "rbxassetid://159454299", "rbxassetid://159454299"
+            sky.SkyboxLf, sky.SkyboxRt, sky.SkyboxUp = "rbxassetid://159454299", "rbxassetid://159454299", "rbxassetid://159454299"
+            lighting.FogColor = Color3.fromRGB(100, 100, 100)
+        else
+            if lighting:FindFirstChild("KotomSky") then lighting.KotomSky:Destroy() end
+        end
+    end)
+
+    tpBtn.MouseButton1Click:Connect(function()
+        thirdPersonEnabled = not thirdPersonEnabled
+        tpBtn.Text = thirdPersonEnabled and "3RD PERSON: ON" or "3RD PERSON: OFF"
+        tpBtn.BackgroundColor3 = thirdPersonEnabled and Color3.fromRGB(0, 120, 0) or Color3.fromRGB(120, 0, 0)
+        
+        localPlayer.CameraMaxZoomDistance = thirdPersonEnabled and 50 or 0.5
+        localPlayer.CameraMinZoomDistance = thirdPersonEnabled and 10 or 0.5
+    end)
+
+    -- Головний цикл
     runService.RenderStepped:Connect(function()
         local char = localPlayer.Character
         
-        -- ESP Logic
-        if espActive then
-            for _, p in pairs(players:GetPlayers()) do
-                if p ~= localPlayer and p.Character then
-                    local hl = p.Character:FindFirstChild("KotomHighlight") or Instance.new("Highlight", p.Character)
-                    hl.Name = "KotomHighlight"
-                    hl.FillColor = Color3.fromRGB(255, 0, 0)
-                    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                    hl.Enabled = true
-                end
+        -- Fix ESP
+        for _, p in pairs(players:GetPlayers()) do
+            if p ~= localPlayer and p.Character then
+                local hl = p.Character:FindFirstChild("KotomHighlight")
+                if espActive then
+                    if not hl then
+                        hl = Instance.new("Highlight", p.Character)
+                        hl.Name = "KotomHighlight"
+                        hl.FillColor = Color3.fromRGB(255, 0, 0)
+                        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                    end
+                elseif hl then hl:Destroy() end
             end
         end
 
-        -- SpinBot (Anti-Aim) Logic
+        -- SpinBot
         if antiAimEnabled and char and char:FindFirstChild("HumanoidRootPart") then
             char.HumanoidRootPart.CFrame = char.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(45), 0)
         end
 
-        -- AimBot Logic (RMB)
+        -- Aim
         if aimbotEnabled and userInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
             local target = nil
             local dist = fovRadius
@@ -137,5 +159,5 @@ local function launchHub()
 end
 
 checkBtn.MouseButton1Click:Connect(function()
-    if keyInput.Text == correctKey then launchHub() else checkBtn.Text = "WRONG KEY" wait(1) checkBtn.Text = "ACTIVATE PRO" end
+    if keyInput.Text == correctKey then launchHub() else checkBtn.Text = "ERROR" wait(1) checkBtn.Text = "ACTIVATE" end
 end)
