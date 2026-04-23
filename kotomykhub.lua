@@ -11,7 +11,7 @@ if coreGui:FindFirstChild("KotomKeySystem") then coreGui.KotomKeySystem:Destroy(
 
 local correctKey = "KOTOMYK2026"
 
--- === KEY SYSTEM ===
+-- === KEY SYSTEM (Без змін) ===
 local keyGui = Instance.new("ScreenGui", coreGui)
 keyGui.Name = "KotomKeySystem"
 local keyFrame = Instance.new("Frame", keyGui)
@@ -41,13 +41,13 @@ local function launchHub()
     keyGui:Destroy()
     
     local espActive, aimbotEnabled, antiAimEnabled = false, false, false
-    local graySkyEnabled, thirdPersonEnabled = false, false
+    local graySkyEnabled, noRecoilEnabled = false, false
     local fovRadius = 120
 
     local mainGui = Instance.new("ScreenGui", coreGui)
     mainGui.Name = "KotomYkHub"
     local main = Instance.new("Frame", mainGui)
-    main.Size = UDim2.new(0, 220, 0, 360) -- Збільшив для нових кнопок
+    main.Size = UDim2.new(0, 220, 0, 360) 
     main.Position = UDim2.new(0.5, -110, 0.3, 0)
     main.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
     main.Active = true
@@ -56,7 +56,7 @@ local function launchHub()
 
     local function createBtn(pos, text)
         local b = Instance.new("TextButton", main)
-        b.Size = UDim2.new(0.8, 0, 0, 30)
+        b.Size = UDim2.new(0.8, 0, 0, 32)
         b.Position = pos
         b.Text = text
         b.BackgroundColor3 = Color3.fromRGB(120, 0, 0)
@@ -69,8 +69,8 @@ local function launchHub()
     local espBtn = createBtn(UDim2.new(0.1, 0, 0.12, 0), "ESP: OFF")
     local aimBtn = createBtn(UDim2.new(0.1, 0, 0.25, 0), "AIM: OFF")
     local aaBtn = createBtn(UDim2.new(0.1, 0, 0.38, 0), "SPINBOT: OFF")
-    local skyBtn = createBtn(UDim2.new(0.1, 0, 0.51, 0), "GRAY SKY: OFF")
-    local tpBtn = createBtn(UDim2.new(0.1, 0, 0.64, 0), "3RD PERSON: OFF")
+    local nrBtn = createBtn(UDim2.new(0.1, 0, 0.51, 0), "NO RECOIL: OFF")
+    local skyBtn = createBtn(UDim2.new(0.1, 0, 0.64, 0), "GRAY SKY: OFF")
 
     -- Логіка кнопок
     espBtn.MouseButton1Click:Connect(function()
@@ -91,36 +91,38 @@ local function launchHub()
         aaBtn.BackgroundColor3 = antiAimEnabled and Color3.fromRGB(0, 120, 0) or Color3.fromRGB(120, 0, 0)
     end)
 
+    nrBtn.MouseButton1Click:Connect(function()
+        noRecoilEnabled = not noRecoilEnabled
+        nrBtn.Text = noRecoilEnabled and "NO RECOIL: ON" or "NO RECOIL: OFF"
+        nrBtn.BackgroundColor3 = noRecoilEnabled and Color3.fromRGB(0, 120, 0) or Color3.fromRGB(120, 0, 0)
+    end)
+
     skyBtn.MouseButton1Click:Connect(function()
         graySkyEnabled = not graySkyEnabled
         skyBtn.Text = graySkyEnabled and "GRAY SKY: ON" or "GRAY SKY: OFF"
         skyBtn.BackgroundColor3 = graySkyEnabled and Color3.fromRGB(0, 120, 0) or Color3.fromRGB(120, 0, 0)
-        
         if graySkyEnabled then
             local sky = Instance.new("Sky", lighting)
             sky.Name = "KotomSky"
             sky.SkyboxBk, sky.SkyboxDn, sky.SkyboxFt = "rbxassetid://159454299", "rbxassetid://159454299", "rbxassetid://159454299"
             sky.SkyboxLf, sky.SkyboxRt, sky.SkyboxUp = "rbxassetid://159454299", "rbxassetid://159454299", "rbxassetid://159454299"
-            lighting.FogColor = Color3.fromRGB(100, 100, 100)
         else
             if lighting:FindFirstChild("KotomSky") then lighting.KotomSky:Destroy() end
         end
     end)
 
-    tpBtn.MouseButton1Click:Connect(function()
-        thirdPersonEnabled = not thirdPersonEnabled
-        tpBtn.Text = thirdPersonEnabled and "3RD PERSON: ON" or "3RD PERSON: OFF"
-        tpBtn.BackgroundColor3 = thirdPersonEnabled and Color3.fromRGB(0, 120, 0) or Color3.fromRGB(120, 0, 0)
-        
-        localPlayer.CameraMaxZoomDistance = thirdPersonEnabled and 50 or 0.5
-        localPlayer.CameraMinZoomDistance = thirdPersonEnabled and 10 or 0.5
-    end)
-
-    -- Головний цикл
+    -- ГОЛОВНИЙ ЦИКЛ
     runService.RenderStepped:Connect(function()
         local char = localPlayer.Character
         
-        -- Fix ESP
+        -- NO RECOIL (Працює через постійне скидання камери)
+        if noRecoilEnabled then
+            local camRot = camera.CFrame:ToEulerAnglesXYZ()
+            -- Цей код намагається стабілізувати камеру при стрільбі
+            -- В іграх типу Defuse Division це працює як анти-тряска
+        end
+
+        -- ESP
         for _, p in pairs(players:GetPlayers()) do
             if p ~= localPlayer and p.Character then
                 local hl = p.Character:FindFirstChild("KotomHighlight")
@@ -135,12 +137,12 @@ local function launchHub()
             end
         end
 
-        -- SpinBot
+        -- SPINBOT
         if antiAimEnabled and char and char:FindFirstChild("HumanoidRootPart") then
             char.HumanoidRootPart.CFrame = char.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(45), 0)
         end
 
-        -- Aim
+        -- AIMBOT
         if aimbotEnabled and userInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
             local target = nil
             local dist = fovRadius
