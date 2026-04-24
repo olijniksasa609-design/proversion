@@ -1,3 +1,4 @@
+-- [[ KOTOMYK HUB PRO: FINAL DIAMOND EDITION ]]
 local coreGui = game:GetService("CoreGui")
 local players = game:GetService("Players")
 local runService = game:GetService("RunService")
@@ -6,13 +7,12 @@ local lighting = game:GetService("Lighting")
 local localPlayer = players.LocalPlayer
 local camera = workspace.CurrentCamera
 
--- Чистка старих меню
 if coreGui:FindFirstChild("KotomYkHub") then coreGui.KotomYkHub:Destroy() end
 if coreGui:FindFirstChild("KotomKeySystem") then coreGui.KotomKeySystem:Destroy() end
 
 local correctKey = "KOTOMYK2026"
 
--- === СИСТЕМА КЛЮЧІВ ===
+-- === СИСТЕМА КЛЮЧІВ (БЕЗ ЗМІН) ===
 local keyGui = Instance.new("ScreenGui", coreGui)
 keyGui.Name = "KotomKeySystem"
 local keyFrame = Instance.new("Frame", keyGui)
@@ -33,7 +33,6 @@ local keyInput = Instance.new("TextBox", keyFrame)
 keyInput.Size = UDim2.new(0.8, 0, 0, 35)
 keyInput.Position = UDim2.new(0.1, 0, 0.4, 0)
 keyInput.PlaceholderText = "Введіть ключ..."
-keyInput.Text = ""
 keyInput.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 keyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
 Instance.new("UICorner", keyInput)
@@ -53,13 +52,15 @@ local function launchHub()
     
     local espActive, aimbotEnabled, antiAimEnabled = false, false, false
     local graySkyEnabled, noRecoilEnabled = false, false
+    local bhopEnabled, dashEnabled = false, false -- НОВІ ФУНКЦІЇ
     local fovRadius = 120
+    local lastDash = 0
 
     local mainGui = Instance.new("ScreenGui", coreGui)
     mainGui.Name = "KotomYkHub"
     local main = Instance.new("Frame", mainGui)
-    main.Size = UDim2.new(0, 220, 0, 380) 
-    main.Position = UDim2.new(0.5, -110, 0.3, 0)
+    main.Size = UDim2.new(0, 220, 0, 460) -- Збільшив висоту під нові кнопки
+    main.Position = UDim2.new(0.5, -110, 0.2, 0)
     main.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
     main.Active = true
     main.Draggable = true
@@ -77,36 +78,29 @@ local function launchHub()
         return b
     end
 
-    local espBtn = createBtn(UDim2.new(0.1, 0, 0.1, 0), "ESP: OFF")
-    local aimBtn = createBtn(UDim2.new(0.1, 0, 0.23, 0), "AIM: OFF")
-    local aaBtn = createBtn(UDim2.new(0.1, 0, 0.36, 0), "SPINBOT: OFF")
-    local nrBtn = createBtn(UDim2.new(0.1, 0, 0.49, 0), "NO RECOIL: OFF")
-    local skyBtn = createBtn(UDim2.new(0.1, 0, 0.62, 0), "GRAY SKY: OFF")
+    -- Кнопки (старі + нові)
+    local espBtn = createBtn(UDim2.new(0.1, 0, 0.05, 0), "ESP: OFF")
+    local aimBtn = createBtn(UDim2.new(0.1, 0, 0.15, 0), "AIM: OFF")
+    local aaBtn = createBtn(UDim2.new(0.1, 0, 0.25, 0), "SPINBOT: OFF")
+    local nrBtn = createBtn(UDim2.new(0.1, 0, 0.35, 0), "NO RECOIL: OFF")
+    local skyBtn = createBtn(UDim2.new(0.1, 0, 0.45, 0), "GRAY SKY: OFF")
+    local bhopBtn = createBtn(UDim2.new(0.1, 0, 0.55, 0), "BHOP: OFF")
+    local dashBtn = createBtn(UDim2.new(0.1, 0, 0.65, 0), "DASH (E): OFF")
 
-    -- Обробка натискань
-    espBtn.MouseButton1Click:Connect(function()
-        espActive = not espActive
-        espBtn.Text = espActive and "ESP: ON" or "ESP: OFF"
-        espBtn.BackgroundColor3 = espActive and Color3.fromRGB(0, 130, 0) or Color3.fromRGB(130, 0, 0)
-    end)
+    -- Обробка логіки кнопок
+    local function toggle(btn, var, text)
+        var = not var
+        btn.Text = var and text..": ON" or text..": OFF"
+        btn.BackgroundColor3 = var and Color3.fromRGB(0, 130, 0) or Color3.fromRGB(130, 0, 0)
+        return var
+    end
 
-    aimBtn.MouseButton1Click:Connect(function()
-        aimbotEnabled = not aimbotEnabled
-        aimBtn.Text = aimbotEnabled and "AIM: ON" or "AIM: OFF"
-        aimBtn.BackgroundColor3 = aimbotEnabled and Color3.fromRGB(0, 130, 0) or Color3.fromRGB(130, 0, 0)
-    end)
-
-    aaBtn.MouseButton1Click:Connect(function()
-        antiAimEnabled = not antiAimEnabled
-        aaBtn.Text = antiAimEnabled and "SPINBOT: ON" or "SPINBOT: OFF"
-        aaBtn.BackgroundColor3 = antiAimEnabled and Color3.fromRGB(0, 130, 0) or Color3.fromRGB(130, 0, 0)
-    end)
-
-    nrBtn.MouseButton1Click:Connect(function()
-        noRecoilEnabled = not noRecoilEnabled
-        nrBtn.Text = noRecoilEnabled and "NO RECOIL: ON" or "NO RECOIL: OFF"
-        nrBtn.BackgroundColor3 = noRecoilEnabled and Color3.fromRGB(0, 130, 0) or Color3.fromRGB(130, 0, 0)
-    end)
+    espBtn.MouseButton1Click:Connect(function() espActive = toggle(espBtn, espActive, "ESP") end)
+    aimBtn.MouseButton1Click:Connect(function() aimbotEnabled = toggle(aimBtn, aimbotEnabled, "AIM") end)
+    aaBtn.MouseButton1Click:Connect(function() antiAimEnabled = toggle(aaBtn, antiAimEnabled, "SPINBOT") end)
+    nrBtn.MouseButton1Click:Connect(function() noRecoilEnabled = toggle(nrBtn, noRecoilEnabled, "NO RECOIL") end)
+    bhopBtn.MouseButton1Click:Connect(function() bhopEnabled = toggle(bhopBtn, bhopEnabled, "BHOP") end)
+    dashBtn.MouseButton1Click:Connect(function() dashEnabled = toggle(dashBtn, dashEnabled, "DASH") end)
 
     skyBtn.MouseButton1Click:Connect(function()
         graySkyEnabled = not graySkyEnabled
@@ -122,47 +116,65 @@ local function launchHub()
         end
     end)
 
+    -- РИВОК НА E
+    userInputService.InputBegan:Connect(function(input, gpe)
+        if not gpe and dashEnabled and input.KeyCode == Enum.KeyCode.E then
+            if tick() - lastDash > 1.5 then
+                local root = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
+                if root then
+                    root.Velocity = root.CFrame.LookVector * 150
+                    lastDash = tick()
+                end
+            end
+        end
+    end)
+
     -- ЦИКЛ ОНОВЛЕННЯ
     runService.RenderStepped:Connect(function()
         local char = localPlayer.Character
-        
-        -- NO RECOIL (Агресивний пошук у пам'яті)
+        local root = char and char:FindFirstChild("HumanoidRootPart")
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+
+        -- BUNNYHOP + STRAFES
+        if bhopEnabled and root and hum and userInputService:IsKeyDown(Enum.KeyCode.Space) then
+            if hum.FloorMaterial ~= Enum.Material.Air then
+                hum:ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+            if userInputService:IsKeyDown(Enum.KeyCode.A) then
+                root.Velocity = root.Velocity + (root.CFrame.RightVector * -2)
+            elseif userInputService:IsKeyDown(Enum.KeyCode.D) then
+                root.Velocity = root.Velocity + (root.CFrame.RightVector * 2)
+            end
+        end
+
+        -- СТАРІ ФУНКЦІЇ (No Recoil, ESP, Spinbot, Aim)
         if noRecoilEnabled then
             for _, v in pairs(getgc(true)) do
                 if type(v) == "table" and (rawget(v, "Recoil") or rawget(v, "Spread")) then
-                    v.Recoil = 0
-                    v.VerticalRecoil = 0
-                    v.HorizontalRecoil = 0
-                    v.Shake = 0
-                    v.Spread = 0
+                    v.Recoil, v.VerticalRecoil, v.HorizontalRecoil, v.Shake, v.Spread = 0,0,0,0,0
                 end
             end
         end
 
-        -- ESP (Виправлений)
         for _, p in pairs(players:GetPlayers()) do
             if p ~= localPlayer and p.Character then
                 local hl = p.Character:FindFirstChild("KotomHighlight")
                 if espActive then
                     if not hl then
                         hl = Instance.new("Highlight", p.Character)
-                        hl.Name = "KotomHighlight"
-                        hl.FillColor = Color3.fromRGB(255, 0, 0)
+                        hl.Name = "KotomHighlight"; hl.FillColor = Color3.fromRGB(255, 0, 0)
                         hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
                     end
                 elseif hl then hl:Destroy() end
             end
         end
 
-        -- SPINBOT
-        if antiAimEnabled and char and char:FindFirstChild("HumanoidRootPart") then
-            char.HumanoidRootPart.CFrame = char.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(45), 0)
+        if antiAimEnabled and root then
+            root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(45), 0)
         end
 
-        -- AIMBOT (Права кнопка миші)
         if aimbotEnabled and userInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
-            local target = nil
-            local dist = fovRadius
+            local target, dist = nil, fovRadius
             for _, v in pairs(players:GetPlayers()) do
                 if v ~= localPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
                     local pos, vis = camera:WorldToViewportPoint(v.Character.HumanoidRootPart.Position)
@@ -178,5 +190,5 @@ local function launchHub()
 end
 
 checkBtn.MouseButton1Click:Connect(function()
-    if keyInput.Text == correctKey then launchHub() else checkBtn.Text = "WRONG KEY" wait(1) checkBtn.Text = "ACTIVATE" end
+    if keyInput.Text == correctKey then launchHub() else checkBtn.Text = "WRONG KEY" task.wait(1) checkBtn.Text = "ACTIVATE" end
 end)
